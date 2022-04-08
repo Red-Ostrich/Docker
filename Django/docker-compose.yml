@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: "appname_db"
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    ports:
+      - "3306:3306"
+      - "2222:22"
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8080
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+      - "2223:22"
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+
+  migrations:
+    build: .
+    command: python manage.py migrate
+    volumes:
+      - .:/app
+    depends_on:
+      - db
